@@ -1,19 +1,57 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <UploadBar @passData="updateData" />
+    <FilePreview :fileData="previewData" @modifyData="updateData" @toggleModal="updateModal" />
+    <ModalEdit :show="showModal" :column="editColumnName" @modifyData="renameColumn" @toggleModal="updateModal" />
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+
+
+import UploadBar from './components/UploadBar.vue'
+import FilePreview from './components/FilePreview.vue'
+import ModalEdit from './components/ModalEdit.vue'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    UploadBar,
+    FilePreview,
+    ModalEdit
+  },
+  data: function() {
+    return {
+      editColumnName: "",
+      previewData: [],
+      showModal: 0
+    };
+  },
+  methods: {
+    updateData (data) {
+      this.previewData = [];
+      this.$nextTick(function () {
+        this.previewData = data;
+      })
+    },
+    updateModal(newName) {
+      this.showModal = !this.showModal;
+      this.editColumnName = newName;
+    },
+    renameColumn(newName) {
+      const modifiedData = this.previewData;
+      const oldName = this.editColumnName;
+      modifiedData.forEach(function(row) {
+        row[newName] = row[oldName];
+        delete row[oldName];
+      })
+      console.log("test");
+      this.updateData(modifiedData);
+      this.updateModal();
+    },
   }
 }
+
 </script>
 
 <style>
